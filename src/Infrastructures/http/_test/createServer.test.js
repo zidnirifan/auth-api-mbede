@@ -1,5 +1,6 @@
 const pool = require('../../database/postgres/pool');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
+const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
 
@@ -10,6 +11,7 @@ describe('HTTP server', () => {
 
   afterEach(async () => {
     await UsersTableTestHelper.cleanTable();
+    await AuthenticationsTableTestHelper.cleanTable();
   });
 
   it('should response 404 when request unregistered route', async () => {
@@ -159,6 +161,44 @@ describe('HTTP server', () => {
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual('username tidak tersedia');
+    });
+  });
+
+  describe('when POST /authentications', () => {
+    it('should response 201 and persisted tokens', async () => {
+      // add user
+      const addUserRequestPayload = {
+        username: 'dicoding',
+        password: 'secret',
+        fullname: 'Dicoding Indonesia',
+      };
+
+      const requestPayload = {
+        username: 'dicoding',
+        password: 'secret',
+      };
+
+      const server = await createServer(container);
+
+      // Action
+      await server.inject({
+        method: 'POST',
+        url: '/users',
+        payload: addUserRequestPayload,
+      });
+
+      const response = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: requestPayload,
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(201);
+      expect(responseJson.status).toEqual('success');
+      expect(typeof responseJson).toEqual('object');
+      expect(typeof responseJson.data.accessToken).toEqual('string');
+      expect(typeof responseJson.data.refreshToken).toEqual('string');
     });
   });
 
