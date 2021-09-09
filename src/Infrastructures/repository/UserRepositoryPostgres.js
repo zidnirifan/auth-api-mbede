@@ -35,6 +35,15 @@ class UserRepositoryPostgres extends UserRepository {
 
     return new RegisteredUser({ ...result.rows[0] });
   }
+
+  async getUserCredential(username) {
+    const query = {
+      text: 'SELECT id, password FROM users WHERE username = $1',
+      values: [username],
+    };
+    const { rows } = await this._pool.query(query);
+    return rows[0];
+  }
 }
 
 module.exports = UserRepositoryPostgres;

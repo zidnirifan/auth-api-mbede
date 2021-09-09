@@ -85,4 +85,27 @@ describe('UserRepositoryPostgres', () => {
       );
     });
   });
+
+  describe('getUserCredential function', () => {
+    it('should return user credential correctly', async () => {
+      const registerUser = new RegisterUser({
+        username: 'dicoding',
+        password: 'secret_password',
+        fullname: 'Dicoding Indonesia',
+      });
+
+      const fakeIdGenerator = () => '123'; // stub!
+      const userRepositoryPostgres = new UserRepositoryPostgres(
+        pool,
+        fakeIdGenerator
+      );
+      const registeredUser = await userRepositoryPostgres.addUser(registerUser);
+      const userCredential = await userRepositoryPostgres.getUserCredential(
+        registerUser.username
+      );
+
+      expect(userCredential.id).toEqual(registeredUser.id);
+      expect(userCredential.password).toEqual(registerUser.password);
+    });
+  });
 });
