@@ -12,8 +12,8 @@ describe('UserRepository interface', () => {
     await expect(
       userRepository.verifyAvailableUsername('')
     ).rejects.toThrowError('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(
-      userRepository.verifyUserCredential('', '')
-    ).rejects.toThrowError('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+    await expect(userRepository.getUserCredential('')).rejects.toThrowError(
+      'USER_REPOSITORY.METHOD_NOT_IMPLEMENTED'
+    );
   });
 });
