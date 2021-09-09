@@ -41,7 +41,10 @@ class UserRepositoryPostgres extends UserRepository {
       text: 'SELECT id, password FROM users WHERE username = $1',
       values: [username],
     };
-    const { rows } = await this._pool.query(query);
+    const { rows, rowCount } = await this._pool.query(query);
+    if (!rowCount) {
+      throw new InvariantError('username tidak valid');
+    }
     return rows[0];
   }
 }

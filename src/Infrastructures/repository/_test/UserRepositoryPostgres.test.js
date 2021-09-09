@@ -87,6 +87,24 @@ describe('UserRepositoryPostgres', () => {
   });
 
   describe('getUserCredential function', () => {
+    it('should throw invariant errror when username invalid', async () => {
+      const registerUser = new RegisterUser({
+        username: 'dicoding',
+        password: 'secret_password',
+        fullname: 'Dicoding Indonesia',
+      });
+
+      const fakeIdGenerator = () => '123'; // stub!
+      const userRepositoryPostgres = new UserRepositoryPostgres(
+        pool,
+        fakeIdGenerator
+      );
+      await userRepositoryPostgres.addUser(registerUser);
+      expect(userRepositoryPostgres.getUserCredential('xxx')).rejects.toThrow(
+        InvariantError
+      );
+    });
+
     it('should return user credential correctly', async () => {
       const registerUser = new RegisterUser({
         username: 'dicoding',
