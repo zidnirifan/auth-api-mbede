@@ -1,4 +1,5 @@
 const PasswordHash = require('../../Applications/security/PasswordHash');
+const AuthenticationError = require('../../Commons/exceptions/AuthenticationError');
 
 class BcryptPasswordHash extends PasswordHash {
   constructor(bcrypt, saltRound = 10) {
@@ -12,7 +13,10 @@ class BcryptPasswordHash extends PasswordHash {
   }
 
   async compare(password, hashedPassword) {
-    return this._bcrypt.compare(password, hashedPassword);
+    const match = await this._bcrypt.compare(password, hashedPassword);
+    if (!match) {
+      throw new AuthenticationError('Kredensial tidak valid');
+    }
   }
 }
 

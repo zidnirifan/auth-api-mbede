@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const AuthenticationError = require('../../../Commons/exceptions/AuthenticationError');
 const BcryptPasswordHash = require('../BcryptPasswordHash');
 
 describe('BcryptPasswordHash', () => {
@@ -19,24 +20,19 @@ describe('BcryptPasswordHash', () => {
   });
 
   describe('compare function', () => {
-    it('should return false when password not match', async () => {
+    it('should throw error when password not match', async () => {
       // Arrange
       const spyCompare = jest.spyOn(bcrypt, 'compare');
       const bcryptPasswordHash = new BcryptPasswordHash(bcrypt);
 
-      // Action
-      const match = await bcryptPasswordHash.compare(
-        'plain_password',
-        'hashed_password'
-      );
-
       // Assert
-      expect(typeof match).toEqual('boolean');
-      expect(match).toEqual(false);
+      expect(
+        bcryptPasswordHash.compare('plain_password', 'hashed_password')
+      ).rejects.toThrow(AuthenticationError);
       expect(spyCompare).toBeCalledWith('plain_password', 'hashed_password');
     });
 
-    it('should return true when password match', async () => {
+    it('should not return AuthenticationError if password match', async () => {
       // Arrange
       const spyCompare = jest.spyOn(bcrypt, 'compare');
       const bcryptPasswordHash = new BcryptPasswordHash(bcrypt);
@@ -44,12 +40,10 @@ describe('BcryptPasswordHash', () => {
       const password = 'password';
       const hashedPasword = await bcrypt.hash(password, 10);
 
-      // Action
-      const match = await bcryptPasswordHash.compare(password, hashedPasword);
-
       // Assert
-      expect(typeof match).toEqual('boolean');
-      expect(match).toEqual(true);
+      expect(
+        bcryptPasswordHash.compare(password, hashedPasword)
+      ).resolves.not.toThrow(AuthenticationError);
       expect(spyCompare).toBeCalledWith(password, hashedPasword);
     });
   });
